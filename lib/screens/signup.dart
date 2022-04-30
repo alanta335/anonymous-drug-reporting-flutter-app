@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:report/main.dart';
@@ -23,6 +25,21 @@ class _SignupState extends State<Signup> {
               child: GestureDetector(
             onTap: () async {
               await GoogleSignInProvider().googleLogin();
+              FirebaseFirestore.instance
+                  .collection('USERS')
+                  .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                  .collection('message')
+                  .doc()
+                  .set({
+                'text': "ala",
+              });
+              DocumentSnapshot user = await FirebaseFirestore.instance
+                  .collection('USERS')
+                  .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                  .collection("message")
+                  .doc()
+                  .get();
+              print(user["text"]);
               Navigator.pushReplacement(
                   context, MaterialPageRoute(builder: (ctx) => Homepage()));
             },
