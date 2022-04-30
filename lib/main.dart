@@ -8,6 +8,8 @@ import 'screens/homescreen.dart';
 import 'screens/signup.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
   runApp(const MyApp());
 }
@@ -81,27 +83,6 @@ class GoogleSignInProvider extends ChangeNotifier {
       print(e.toString());
     }
     notifyListeners();
-    FirebaseFirestore.instance
-        .collection('USERS')
-        .doc('${FirebaseAuth.instance.currentUser!.uid}')
-        .collection('FRIENDS')
-        .doc('NO_OF_FRIENDS')
-        .set({'no': 0});
-    FirebaseFirestore.instance
-        .collection('USERS')
-        .doc('${FirebaseAuth.instance.currentUser!.uid}')
-        .set({
-      'name': FirebaseAuth.instance.currentUser!.displayName,
-      'email': FirebaseAuth.instance.currentUser!.email,
-      'location': "null",
-      'timestamp_of_reg': DateTime.now().toString(),
-      'timestamp_of_loc': 'null',
-      'userId': FirebaseAuth.instance.currentUser!.uid,
-      'completedReg': 'false',
-      'address': 'null',
-      'phone_no': 'null',
-      'sos': "false",
-    });
   }
 
   Future loggedout() async {

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:report/main.dart';
-
-import 'dart:async';
 
 import 'homescreen.dart';
 
@@ -23,19 +20,18 @@ class _SignupState extends State<Signup> {
         children: [
           Center(
               child: GestureDetector(
-            onTap: () {
-              final provider =
-                  Provider.of<GoogleSignInProvider>(context, listen: false);
-              provider.googleLogin();
-              Timer(
-                  Duration(seconds: 10),
-                  () => Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => Homepage())));
+            onTap: () async {
+              // final provider =
+              //     Provider.of<GoogleSignInProvider>(context, listen: false);
+              // provider.googleLogin();
+              await GoogleSignInProvider().googleLogin();
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (ctx) => Homepage()));
             },
             child: Container(
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.amber,
                 borderRadius: BorderRadius.circular(50),
               ),
               width: width * 0.87,
