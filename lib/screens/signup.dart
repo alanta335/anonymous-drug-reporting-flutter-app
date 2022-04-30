@@ -31,7 +31,9 @@ class _SignupState extends State<Signup> {
                   .collection('message')
                   .doc()
                   .set({
-                'text': "ala",
+                'text': "welcome",
+                'type': "receiver",
+                'time': DateTime.now().toString()
               });
               DocumentSnapshot user = await FirebaseFirestore.instance
                   .collection('USERS')
