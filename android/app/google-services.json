@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "604829875843-7iuejhcir4vicifikuk252sm3ed5a68c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.report.bois",
+            "certificate_hash": "c24df6697e1f09c49194c489ebcecc8563bcfb76"
+          }
+        },
+        {
           "client_id": "604829875843-gqcfr9bl6di51d28lei24tuhoqk8rlrm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

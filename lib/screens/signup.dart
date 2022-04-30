@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:report/main.dart';
 
 import 'homescreen.dart';
@@ -21,9 +22,6 @@ class _SignupState extends State<Signup> {
           Center(
               child: GestureDetector(
             onTap: () async {
-              // final provider =
-              //     Provider.of<GoogleSignInProvider>(context, listen: false);
-              // provider.googleLogin();
               await GoogleSignInProvider().googleLogin();
               Navigator.pushReplacement(
                   context, MaterialPageRoute(builder: (ctx) => Homepage()));
