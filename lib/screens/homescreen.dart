@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -10,6 +13,19 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  File? image;
+  Future getImage() async {
+    final image = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (image == null) return;
+    final imageTemp = File(image.path);
+    setState(() {
+      this.image = imageTemp;
+    });
+    print(image.path);
+  }
+
+  final ImagePicker _picker = ImagePicker();
+
   TextEditingController messageController = TextEditingController();
 
   @override
@@ -43,6 +59,14 @@ class _HomepageState extends State<Homepage> {
           body: SafeArea(
             child: Column(
               children: [
+                (image != null)
+                    ? Image.file(
+                        image!,
+                        width: 160,
+                        height: 160,
+                        fit: BoxFit.cover,
+                      )
+                    : const SizedBox(),
                 Expanded(
                   child: ListView(
                     addAutomaticKeepAlives: false,
@@ -94,6 +118,9 @@ class _HomepageState extends State<Homepage> {
                       ),
                     ),
                     ElevatedButton(
+                        onPressed: () => getImage(),
+                        child: Icon(Icons.camera_alt_rounded)),
+                    ElevatedButton(
                         onPressed: () {
                           FirebaseFirestore.instance
                               .collection('USERS')
@@ -109,7 +136,7 @@ class _HomepageState extends State<Homepage> {
                         },
                         child: Text('Send')),
                   ],
-                )
+                ),
               ],
             ),
           ),
