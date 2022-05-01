@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:geolocator/geolocator.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -16,26 +20,28 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   File? image;
   Future getImage() async {
-    //for the image picking and uploading it to firebase as string?
-
     final image = await ImagePicker()
-        .pickImage(source: ImageSource.camera, maxHeight: 480, maxWidth: 640);
+        .pickImage(source: ImageSource.camera, imageQuality: 80);
     if (image == null) return;
     final imageTemp = File(image.path);
     setState(() {
       this.image = imageTemp;
     });
     print(image.path);
-    List<int> imageBytes = await image.readAsBytes();
-    print(imageBytes);
-    String base64Image = base64Encode(imageBytes);
+    final imageFile = File(image.path);
+    final uploadTask = await FirebaseStorage.instance
+        .ref()
+        .child(
+            'user_photo/${FirebaseAuth.instance.currentUser!.uid}_${DateTime.now().toString()}')
+        .putFile(imageFile);
+    final imageURL = await uploadTask.ref.getDownloadURL();
     FirebaseFirestore.instance
         .collection('USERS')
         .doc('${FirebaseAuth.instance.currentUser!.uid}')
         .collection('message')
         .doc()
         .set({
-      'text': base64Image,
+      'text': imageURL,
       'type': "image",
       'time': DateTime.now().toString()
     });
@@ -44,14 +50,14 @@ class _HomepageState extends State<Homepage> {
   final ImagePicker _picker = ImagePicker();
 
   TextEditingController messageController = TextEditingController();
-
+  ScrollController _myController = ScrollController();
   @override
   Widget build(BuildContext context) {
     Query message = FirebaseFirestore.instance
         .collection('USERS')
         .doc('${FirebaseAuth.instance.currentUser!.uid}')
         .collection('message')
-        .orderBy('time', descending: false);
+        .orderBy('time', descending: true);
 
     return StreamBuilder<QuerySnapshot>(
       stream: message.snapshots(),
@@ -68,31 +74,22 @@ class _HomepageState extends State<Homepage> {
             ),
           );
         }
-
         return Scaffold(
           appBar: AppBar(
-            title: Text('Visited Database'),
+            title: Text('Reports and Messages'),
           ),
           body: SafeArea(
             child: Column(
               children: [
-                // ##########FOR PREVIEW OF IMAGE
-                // (image != null)
-                //     ? Image.file(
-                //         image!,
-                //         width: 160,
-                //         height: 160,
-                //         fit: BoxFit.cover,
-                //       )
-                //     : const SizedBox(),
                 Expanded(
                   child: ListView(
-                    addAutomaticKeepAlives: false,
+                    addAutomaticKeepAlives: true,
                     cacheExtent: 300,
-                    reverse: false,
+                    reverse: true,
                     children:
                         snapshot.data!.docs.map((DocumentSnapshot document) {
                       return Container(
+                        alignment: Alignment.bottomCenter,
                         padding: EdgeInsets.only(
                             left: 14, right: 14, top: 10, bottom: 10),
                         child: Align(
@@ -111,15 +108,11 @@ class _HomepageState extends State<Homepage> {
                             ),
                             padding: EdgeInsets.all(16),
                             child: (document.get('type').toString() == "image")
-                                ? Image.memory(
-                                    Base64Decoder().convert(
-                                        document.get('text').toString()),
-                                    width: 140,
-                                    height: 320,
-                                  ) //imgDec(document.get('text').toString())
+                                ? Image.network(
+                                    document.get('text').toString(),
+                                  )
                                 : Text(
                                     document.get('text'),
-                                    // ignore: prefer_const_constructors
                                     style: TextStyle(fontSize: 15),
                                   ),
                           ),
@@ -144,24 +137,44 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                     ),
-                    ElevatedButton(
-                        onPressed: () => getImage(),
-                        child: Icon(Icons.camera_alt_rounded)),
-                    ElevatedButton(
-                        onPressed: () {
-                          FirebaseFirestore.instance
-                              .collection('USERS')
-                              .doc('${FirebaseAuth.instance.currentUser!.uid}')
-                              .collection('message')
-                              .doc()
-                              .set({
-                            'text': messageController.text,
-                            'type': "sender",
-                            'time': DateTime.now().toString()
-                          });
-                          messageController.text = "";
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          String googleUrl =
+                              'https://www.google.com/maps/search/?api=1&query=58.698017,-152.522067';
+                          Uri uri = Uri.parse(googleUrl);
+                          launchUrl(uri);
                         },
-                        child: Text('Send')),
+                        child: const Icon(Icons.location_on),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () => getImage(),
+                        child: const Icon(Icons.camera_alt_rounded),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                          onPressed: () {
+                            FirebaseFirestore.instance
+                                .collection('USERS')
+                                .doc(
+                                    '${FirebaseAuth.instance.currentUser!.uid}')
+                                .collection('message')
+                                .doc()
+                                .set({
+                              'text': messageController.text,
+                              'type': "sender",
+                              'time': DateTime.now().toString()
+                            });
+                            messageController.text = "";
+                          },
+                          child: Text('Send')),
+                    ),
                   ],
                 ),
               ],
