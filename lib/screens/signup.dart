@@ -41,7 +41,7 @@ class _SignupState extends State<Signup> {
                   .collection("message")
                   .doc()
                   .get();
-              print(user["text"]);
+
               Navigator.pushReplacement(
                   context, MaterialPageRoute(builder: (ctx) => Homepage()));
             },

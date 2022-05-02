@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
+import 'map.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -76,7 +77,25 @@ class _HomepageState extends State<Homepage> {
         }
         return Scaffold(
           appBar: AppBar(
-            title: Text('Reports and Messages'),
+            title: Row(
+              children: [
+                Text('Reports and Messages'),
+                ElevatedButton(
+                    onPressed: () {
+                      FirebaseFirestore.instance
+                          .collection('USERS')
+                          .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                          .collection('message')
+                          .doc()
+                          .set({
+                        'text': posi.toString(),
+                        'type': "sender",
+                        'time': DateTime.now().toString()
+                      });
+                    },
+                    child: Text('report location'))
+              ],
+            ),
           ),
           body: SafeArea(
             child: Column(
@@ -140,11 +159,9 @@ class _HomepageState extends State<Homepage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ElevatedButton(
-                        onPressed: () async {
-                          String googleUrl =
-                              'https://www.google.com/maps/search/?api=1&query=58.698017,-152.522067';
-                          Uri uri = Uri.parse(googleUrl);
-                          launchUrl(uri);
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (ctx) => const Map()));
                         },
                         child: const Icon(Icons.location_on),
                       ),
