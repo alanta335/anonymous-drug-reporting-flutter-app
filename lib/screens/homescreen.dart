@@ -79,7 +79,7 @@ class _HomepageState extends State<Homepage> {
           appBar: AppBar(
             title: Row(
               children: [
-                Text('Reports and Messages'),
+                const Text('Reports and Messages'),
                 ElevatedButton(
                     onPressed: () {
                       FirebaseFirestore.instance
@@ -88,8 +88,17 @@ class _HomepageState extends State<Homepage> {
                           .collection('message')
                           .doc()
                           .set({
-                        'text': posi.toString(),
+                        'text': "lat- $lat and long- $long",
                         'type': "sender",
+                        'time': DateTime.now().toString()
+                      });
+                      FirebaseFirestore.instance
+                          .collection('R_AREA')
+                          .doc()
+                          .set({
+                        'lat': lat,
+                        'long': long,
+                        'type': "location",
                         'time': DateTime.now().toString()
                       });
                     },

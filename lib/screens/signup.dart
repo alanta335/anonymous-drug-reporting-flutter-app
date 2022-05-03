@@ -35,15 +35,9 @@ class _SignupState extends State<Signup> {
                 'type': "receiver",
                 'time': DateTime.now().toString()
               });
-              DocumentSnapshot user = await FirebaseFirestore.instance
-                  .collection('USERS')
-                  .doc('${FirebaseAuth.instance.currentUser!.uid}')
-                  .collection("message")
-                  .doc()
-                  .get();
 
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (ctx) => Homepage()));
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (ctx) => const Homepage()));
             },
             child: Container(
               height: 50,
