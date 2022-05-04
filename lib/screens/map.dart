@@ -15,7 +15,7 @@ late double lat;
 late double long;
 CameraPosition _initialCameraPosition = const CameraPosition(
   target: LatLng(37.3861, 122.0839),
-  zoom: 11.5,
+  zoom: 0,
 );
 
 Future<Position> _getGeoLocationPosition() async {
