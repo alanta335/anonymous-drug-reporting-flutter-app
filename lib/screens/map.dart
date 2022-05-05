@@ -11,8 +11,8 @@ class Map extends StatefulWidget {
   State<Map> createState() => _MapState();
 }
 
-late double lat;
-late double long;
+double lat = 0.0;
+double long = 0.0;
 CameraPosition _initialCameraPosition = const CameraPosition(
   target: LatLng(37.3861, 122.0839),
   zoom: 0,
@@ -153,20 +153,23 @@ class _MapState extends State<Map> {
   }
 
   void addMarkerOfReportedArea(
-      String id, double lat, double long, String name, String loc) {
+    String id,
+    double lat,
+    double long,
+  ) {
     setState(() {
       markers.add(
         Marker(
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
           position: LatLng(lat, long),
           markerId: MarkerId('$id'),
-          infoWindow: InfoWindow(title: '$name', snippet: '$loc'),
         ),
       );
     });
   }
 
   reportLocationGet() async {
+    markers.clear();
     Stream<QuerySnapshot> snap =
         FirebaseFirestore.instance.collection("R_AREA").snapshots();
     snap.forEach(
@@ -174,16 +177,18 @@ class _MapState extends State<Map> {
         field.docs.asMap().forEach(
           (index, data) async {
             print('${data.id}-----------');
-            if (data.id.toString() != 'NO_OF_FRIENDS') {
-              DocumentSnapshot user = await FirebaseFirestore.instance
-                  .collection('USERS')
-                  .doc('${data.id}')
-                  .get();
-              double lati = double.parse(user['lat']);
-              double longi = double.parse(user['long']);
-              addMarkerOfReportedArea(data.id, lati, longi,
-                  user['name'].toString(), user['location'].toString());
-            }
+            DocumentSnapshot user = await FirebaseFirestore.instance
+                .collection('R_AREA')
+                .doc('${data.id}')
+                .get();
+            print('asdsad ${user['lat']}');
+            double lati = user['lat'];
+            double longi = user['long'];
+            addMarkerOfReportedArea(
+              data.id,
+              lati,
+              longi,
+            );
           },
         );
       },
