@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:dio/dio.dart';
+import 'package:report/models/basicJson.dart';
 
 class Map extends StatefulWidget {
   const Map({Key? key}) : super(key: key);
@@ -48,6 +52,15 @@ Future<Position> _getGeoLocationPosition() async {
 }
 
 class _MapState extends State<Map> {
+  var ls = [];
+  var dio = Dio();
+  Set<Circle> circles = Set.from([
+    Circle(
+      circleId: CircleId("s"),
+      center: LatLng(lat, long),
+      radius: 0,
+    )
+  ]);
   @override
   void initState() {
     // TODO: implement initState
@@ -98,6 +111,22 @@ class _MapState extends State<Map> {
                     reportLocationGet();
                   },
                   child: Text("see report area")),
+            ),
+            Expanded(
+              child: ElevatedButton(
+                  onPressed: () async {
+                    var json = jsonEncode({"list": ls});
+                    //print(json);
+                    Response x = await dio.post(
+                        "https://reportapitest34.azurewebsites.net/data",
+                        data: json);
+                    //print(x.data);
+                    json_loc locc = json_loc.fromJson(x.data);
+                    print("Raduisss = ${locc.rad.toString()}");
+                    addMarkerOfReportedArea(
+                        "MAX", locc.lat!, locc.long!, locc.rad!);
+                  },
+                  child: Text("see cluster")),
             )
           ],
         ),
@@ -114,6 +143,7 @@ class _MapState extends State<Map> {
               },
               markers: markers.toSet(),
               onLongPress: _addMarker,
+              circles: circles,
               onTap: (coordinates) {
                 _googleMapController
                     .animateCamera(CameraUpdate.newLatLng(coordinates));
@@ -156,15 +186,29 @@ class _MapState extends State<Map> {
     String id,
     double lat,
     double long,
+    double radius,
   ) {
     setState(() {
-      markers.add(
-        Marker(
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
+      ls.add({"lat": lat, "long": long});
+      if (id == "MAX") {
+        circles.add(Circle(
+            circleId: CircleId("2"),
+            radius: radius * 100,
+            center: LatLng(lat, long)));
+        markers.add(Marker(
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
           position: LatLng(lat, long),
           markerId: MarkerId('$id'),
-        ),
-      );
+        ));
+      } else {
+        markers.add(Marker(
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          position: LatLng(lat, long),
+          markerId: MarkerId('$id'),
+        ));
+      }
     });
   }
 
@@ -176,19 +220,14 @@ class _MapState extends State<Map> {
       (field) {
         field.docs.asMap().forEach(
           (index, data) async {
-            print('${data.id}-----------');
+            //print('${data.id}-----------');
             DocumentSnapshot user = await FirebaseFirestore.instance
                 .collection('R_AREA')
                 .doc('${data.id}')
                 .get();
-            print('asdsad ${user['lat']}');
             double lati = user['lat'];
             double longi = user['long'];
-            addMarkerOfReportedArea(
-              data.id,
-              lati,
-              longi,
-            );
+            addMarkerOfReportedArea(data.id, lati, longi, 0.0);
           },
         );
       },
