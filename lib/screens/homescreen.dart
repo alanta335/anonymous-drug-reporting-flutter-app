@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:report/screens/signup.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'map.dart';
@@ -25,39 +26,16 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  String? UID;
-  void uidFetch() async {
-    var deviceInfo = DeviceInfoPlugin();
-
-    var android_id = await _getId();
-    //print(android_id);
-    var bytes = utf8.encode(android_id!);
-    var digest = sha256.convert(bytes);
-    UID = digest.toString();
-    //print(UID);
-  }
-
   @override
   void initState() {
     super.initState();
-    uidFetch();
+    // uidFetch();
   }
 
   File? image;
   String? imeiNo, platformVersion;
 
   // ignore: non_constant_identifier_names
-  Future<String?> _getId() async {
-    var deviceInfo = DeviceInfoPlugin();
-    if (Platform.isIOS) {
-      // import 'dart:io'
-      var iosDeviceInfo = await deviceInfo.iosInfo;
-      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
-    } else if (Platform.isAndroid) {
-      var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
-    }
-  }
 
   Future getImage() async {
     final image = await ImagePicker()
@@ -71,13 +49,12 @@ class _HomepageState extends State<Homepage> {
     final imageFile = File(image.path);
     final uploadTask = await FirebaseStorage.instance
         .ref()
-        .child(
-            'user_photo/${FirebaseAuth.instance.currentUser!.uid}_${DateTime.now().toString()}')
+        .child('user_photo/${uid}_${DateTime.now().toString()}')
         .putFile(imageFile);
     final imageURL = await uploadTask.ref.getDownloadURL();
     FirebaseFirestore.instance
         .collection('USERS')
-        .doc('${FirebaseAuth.instance.currentUser!.uid}')
+        .doc('$uid')
         .collection('message')
         .doc()
         .set({
@@ -95,20 +72,9 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     Query message = FirebaseFirestore.instance
         .collection('USERS')
-        .doc('${FirebaseAuth.instance.currentUser!.uid}')
+        .doc('${uid}')
         .collection('message')
         .orderBy('time', descending: true);
-    Future<String?> _getId() async {
-      var deviceInfo = DeviceInfoPlugin();
-      if (Platform.isIOS) {
-        // import 'dart:io'
-        var iosDeviceInfo = await deviceInfo.iosInfo;
-        return iosDeviceInfo.identifierForVendor; // unique ID on iOS
-      } else if (Platform.isAndroid) {
-        var androidDeviceInfo = await deviceInfo.androidInfo;
-        return androidDeviceInfo.androidId; // unique ID on Android
-      }
-    }
 
     return StreamBuilder<QuerySnapshot>(
       stream: message.snapshots(),
@@ -134,7 +100,7 @@ class _HomepageState extends State<Homepage> {
                   onPressed: () {
                     FirebaseFirestore.instance
                         .collection('USERS')
-                        .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                        .doc('$uid')
                         .collection('message')
                         .doc()
                         .set({
@@ -236,8 +202,7 @@ class _HomepageState extends State<Homepage> {
                           onPressed: () {
                             FirebaseFirestore.instance
                                 .collection('USERS')
-                                .doc(
-                                    '${FirebaseAuth.instance.currentUser!.uid}')
+                                .doc('$uid')
                                 .collection('message')
                                 .doc()
                                 .set({
@@ -248,15 +213,6 @@ class _HomepageState extends State<Homepage> {
                             messageController.text = "";
                           },
                           child: Text('Send')),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                          onPressed: () async {
-                            String? x = await _getId();
-                            print(x);
-                          },
-                          child: Text('aPI')),
                     ),
                   ],
                 ),

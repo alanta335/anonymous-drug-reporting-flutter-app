@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:report/utils/deviceid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:report/main.dart';
 
 import 'homescreen.dart';
@@ -12,10 +14,12 @@ class Signup extends StatefulWidget {
 }
 
 var userType = "";
+String? uid;
 
 class _SignupState extends State<Signup> {
   @override
   final _formkey = GlobalKey<FormState>();
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -28,9 +32,15 @@ class _SignupState extends State<Signup> {
             padding: const EdgeInsets.all(13.0),
             child: GestureDetector(
               onTap: () async {
+                final SharedPreferences prefs = await _prefs;
                 setState(() {
                   userType = "user";
                 });
+                uid = prefs.getString('uid');
+                if (uid == null) {
+                  uid = await uidFetch();
+                  await prefs.setString('uid', uid!);
+                }
                 Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (ctx) => const Homepage()));
               },
@@ -61,7 +71,7 @@ class _SignupState extends State<Signup> {
               await GoogleSignInProvider().googleLogin();
               FirebaseFirestore.instance
                   .collection('USERS')
-                  .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                  .doc('$uid')
                   .collection('message')
                   .doc()
                   .set({
