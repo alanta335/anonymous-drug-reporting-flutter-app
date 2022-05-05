@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,6 +14,8 @@ import 'map.dart';
 import '/models/basicJson.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:crypto/crypto.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -22,7 +25,40 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  String? UID;
+  void uidFetch() async {
+    var deviceInfo = DeviceInfoPlugin();
+
+    var android_id = await _getId();
+    //print(android_id);
+    var bytes = utf8.encode(android_id!);
+    var digest = sha256.convert(bytes);
+    UID = digest.toString();
+    //print(UID);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    uidFetch();
+  }
+
   File? image;
+  String? imeiNo, platformVersion;
+
+  // ignore: non_constant_identifier_names
+  Future<String?> _getId() async {
+    var deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) {
+      // import 'dart:io'
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+    } else if (Platform.isAndroid) {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+      return androidDeviceInfo.androidId; // unique ID on Android
+    }
+  }
+
   Future getImage() async {
     final image = await ImagePicker()
         .pickImage(source: ImageSource.camera, imageQuality: 80);
@@ -62,6 +98,17 @@ class _HomepageState extends State<Homepage> {
         .doc('${FirebaseAuth.instance.currentUser!.uid}')
         .collection('message')
         .orderBy('time', descending: true);
+    Future<String?> _getId() async {
+      var deviceInfo = DeviceInfoPlugin();
+      if (Platform.isIOS) {
+        // import 'dart:io'
+        var iosDeviceInfo = await deviceInfo.iosInfo;
+        return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+      } else if (Platform.isAndroid) {
+        var androidDeviceInfo = await deviceInfo.androidInfo;
+        return androidDeviceInfo.androidId; // unique ID on Android
+      }
+    }
 
     return StreamBuilder<QuerySnapshot>(
       stream: message.snapshots(),
@@ -206,17 +253,8 @@ class _HomepageState extends State<Homepage> {
                       padding: const EdgeInsets.all(8.0),
                       child: ElevatedButton(
                           onPressed: () async {
-                            //print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
-                            Response xs = await dio.post(
-                                'http://reportapitest34.azurewebsites.net/data',
-                                data: {
-                                  'UID':
-                                      "${FirebaseAuth.instance.currentUser!.uid}"
-                                });
-
-                            //late basic_data x = basic_data.fromJson())
-                            basic_data x = basic_data.fromJson(xs.data);
-                            print("${x.UID}++++${x.message}");
+                            String? x = await _getId();
+                            print(x);
                           },
                           child: Text('aPI')),
                     ),
