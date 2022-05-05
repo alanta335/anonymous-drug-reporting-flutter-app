@@ -10,6 +10,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'map.dart';
+import '/models/basicJson.dart';
+import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -49,7 +52,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   final ImagePicker _picker = ImagePicker();
-
+  var dio = Dio();
   TextEditingController messageController = TextEditingController();
   ScrollController _myController = ScrollController();
   @override
@@ -200,6 +203,21 @@ class _HomepageState extends State<Homepage> {
                             messageController.text = "";
                           },
                           child: Text('Send')),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                          onPressed: () async {
+                            //print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
+                            Response xs = await dio.post(
+                                'http://reportapitest34.azurewebsites.net/data',
+                                data: {'UID': "STY"});
+
+                            //late basic_data x = basic_data.fromJson())
+                            basic_data x = basic_data.fromJson(xs.data);
+                            print(x.UID);
+                          },
+                          child: Text('aPI')),
                     ),
                   ],
                 ),
