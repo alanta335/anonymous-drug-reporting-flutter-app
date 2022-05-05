@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'screens/homescreen.dart';
+import 'screens/listpage.dart';
 import 'screens/signup.dart';
 
 Future<void> main() async {
@@ -54,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text("error"),
               );
             } else if (snapshot.hasData) {
-              return Homepage();
+              return listpage();
             } else {
               return Signup();
             }

@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
+import 'listpage.dart';
 import 'map.dart';
 import '/models/basicJson.dart';
 import 'package:http/http.dart' as http;
@@ -35,13 +36,12 @@ class _HomepageState extends State<Homepage> {
     final imageFile = File(image.path);
     final uploadTask = await FirebaseStorage.instance
         .ref()
-        .child(
-            'user_photo/${FirebaseAuth.instance.currentUser!.uid}_${DateTime.now().toString()}')
+        .child('user_photo/${id}_${DateTime.now().toString()}')
         .putFile(imageFile);
     final imageURL = await uploadTask.ref.getDownloadURL();
     FirebaseFirestore.instance
         .collection('USERS')
-        .doc('${FirebaseAuth.instance.currentUser!.uid}')
+        .doc('$id')
         .collection('message')
         .doc()
         .set({
@@ -59,7 +59,7 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     Query message = FirebaseFirestore.instance
         .collection('USERS')
-        .doc('${FirebaseAuth.instance.currentUser!.uid}')
+        .doc('$id')
         .collection('message')
         .orderBy('time', descending: true);
 
@@ -81,31 +81,31 @@ class _HomepageState extends State<Homepage> {
         return Scaffold(
           appBar: AppBar(
             title: Row(
-              children: [
-                const Text('Reports and Messages'),
-                ElevatedButton(
-                    onPressed: () {
-                      FirebaseFirestore.instance
-                          .collection('USERS')
-                          .doc('${FirebaseAuth.instance.currentUser!.uid}')
-                          .collection('message')
-                          .doc()
-                          .set({
-                        'text': "lat- $lat and long- $long",
-                        'type': "sender",
-                        'time': DateTime.now().toString()
-                      });
-                      FirebaseFirestore.instance
-                          .collection('R_AREA')
-                          .doc()
-                          .set({
-                        'lat': lat,
-                        'long': long,
-                        'type': "location",
-                        'time': DateTime.now().toString()
-                      });
-                    },
-                    child: Text('report location'))
+              children: const [
+                Text('Reports and Messages'),
+                // ElevatedButton(
+                //     onPressed: () {
+                //       FirebaseFirestore.instance
+                //           .collection('USERS')
+                //           .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                //           .collection('message')
+                //           .doc()
+                //           .set({
+                //         'text': "lat- $lat and long- $long",
+                //         'type': "sender",
+                //         'time': DateTime.now().toString()
+                //       });
+                //       FirebaseFirestore.instance
+                //           .collection('R_AREA')
+                //           .doc()
+                //           .set({
+                //         'lat': lat,
+                //         'long': long,
+                //         'type': "location",
+                //         'time': DateTime.now().toString()
+                //       });
+                //     },
+                //     child: Text('report location'))
               ],
             ),
           ),
@@ -178,26 +178,25 @@ class _HomepageState extends State<Homepage> {
                         child: const Icon(Icons.location_on),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                        onPressed: () => getImage(),
-                        child: const Icon(Icons.camera_alt_rounded),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: ElevatedButton(
+                    //     onPressed: () => getImage(),
+                    //     child: const Icon(Icons.camera_alt_rounded),
+                    //   ),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ElevatedButton(
                           onPressed: () {
                             FirebaseFirestore.instance
                                 .collection('USERS')
-                                .doc(
-                                    '${FirebaseAuth.instance.currentUser!.uid}')
+                                .doc('$id')
                                 .collection('message')
                                 .doc()
                                 .set({
                               'text': messageController.text,
-                              'type': "sender",
+                              'type': "receiver",
                               'time': DateTime.now().toString()
                             });
                             messageController.text = "";
@@ -208,17 +207,13 @@ class _HomepageState extends State<Homepage> {
                       padding: const EdgeInsets.all(8.0),
                       child: ElevatedButton(
                           onPressed: () async {
-                            //print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
                             Response xs = await dio.post(
                                 'http://reportapitest34.azurewebsites.net/data',
-                                data: {
-                                  'UID':
-                                      "${FirebaseAuth.instance.currentUser!.uid}"
-                                });
+                                data: {'UID': "STY"});
 
                             //late basic_data x = basic_data.fromJson())
                             basic_data x = basic_data.fromJson(xs.data);
-                            print("${x.UID}++++${x.message}");
+                            print(x.UID);
                           },
                           child: Text('aPI')),
                     ),
