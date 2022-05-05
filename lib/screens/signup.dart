@@ -75,6 +75,7 @@ class _SignupState extends State<Signup> {
                   .collection('message')
                   .doc()
                   .set({
+			'priority': 0,
                 'text': "welcome",
                 'type': "receiver",
                 'time': DateTime.now().toString()
