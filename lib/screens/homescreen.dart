@@ -129,30 +129,28 @@ class _HomepageState extends State<Homepage> {
           appBar: AppBar(
             title: Row(
               children: [
-                const Text('Reports and Messages'),
+                const Text('Reports'),
                 ElevatedButton(
-                    onPressed: () {
-                      FirebaseFirestore.instance
-                          .collection('USERS')
-                          .doc('${FirebaseAuth.instance.currentUser!.uid}')
-                          .collection('message')
-                          .doc()
-                          .set({
-                        'text': "lat- $lat and long- $long",
-                        'type': "sender",
-                        'time': DateTime.now().toString()
-                      });
-                      FirebaseFirestore.instance
-                          .collection('R_AREA')
-                          .doc()
-                          .set({
-                        'lat': lat,
-                        'long': long,
-                        'type': "location",
-                        'time': DateTime.now().toString()
-                      });
-                    },
-                    child: Text('report location'))
+                  onPressed: () {
+                    FirebaseFirestore.instance
+                        .collection('USERS')
+                        .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                        .collection('message')
+                        .doc()
+                        .set({
+                      'text': "lat- $lat and long- $long",
+                      'type': "sender",
+                      'time': DateTime.now().toString()
+                    });
+                    FirebaseFirestore.instance.collection('R_AREA').doc().set({
+                      'lat': lat,
+                      'long': long,
+                      'type': "location",
+                      'time': DateTime.now().toString()
+                    });
+                  },
+                  child: Text('report location'),
+                ),
               ],
             ),
           ),

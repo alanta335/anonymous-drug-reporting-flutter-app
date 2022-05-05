@@ -11,6 +11,8 @@ class Signup extends StatefulWidget {
   _SignupState createState() => _SignupState();
 }
 
+var userType = "";
+
 class _SignupState extends State<Signup> {
   @override
   final _formkey = GlobalKey<FormState>();
@@ -19,10 +21,40 @@ class _SignupState extends State<Signup> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: Stack(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
-              child: GestureDetector(
+          Padding(
+            padding: const EdgeInsets.all(13.0),
+            child: GestureDetector(
+              onTap: () async {
+                setState(() {
+                  userType = "user";
+                });
+              },
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                width: width * 0.87,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'send message anonymous',
+                        style: TextStyle(
+                            fontFamily: 'Poppins', color: Colors.grey.shade700),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          GestureDetector(
             onTap: () async {
               await GoogleSignInProvider().googleLogin();
               FirebaseFirestore.instance
@@ -51,7 +83,7 @@ class _SignupState extends State<Signup> {
                 child: Row(
                   children: [
                     Text(
-                      'Sign up with Google',
+                      'Sign up with Google if admin',
                       style: TextStyle(
                           fontFamily: 'Poppins', color: Colors.grey.shade700),
                     )
@@ -59,7 +91,7 @@ class _SignupState extends State<Signup> {
                 ),
               ),
             ),
-          )),
+          ),
         ],
       ),
     );
