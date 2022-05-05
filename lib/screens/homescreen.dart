@@ -37,6 +37,16 @@ class _HomepageState extends State<Homepage> {
 
   // ignore: non_constant_identifier_names
 
+  MaterialColor getcolor(int priority) {
+    if (priority == 0) {
+      return Colors.grey;
+    } else if (priority == 1) {
+      return Colors.blue;
+    } else {
+      return Colors.red;
+    }
+  }
+
   Future getImage() async {
     final image = await ImagePicker()
         .pickImage(source: ImageSource.camera, imageQuality: 80);
@@ -59,6 +69,7 @@ class _HomepageState extends State<Homepage> {
         .doc()
         .set({
       'text': imageURL,
+      'priority': 1,
       'type': "image",
       'time': DateTime.now().toString()
     });
@@ -105,10 +116,12 @@ class _HomepageState extends State<Homepage> {
                         .doc()
                         .set({
                       'text': "lat- $lat and long- $long",
+                      'priority': 0,
                       'type': "sender",
                       'time': DateTime.now().toString()
                     });
                     FirebaseFirestore.instance.collection('R_AREA').doc().set({
+                      'priority': 0,
                       'lat': lat,
                       'long': long,
                       'type': "location",
@@ -143,10 +156,7 @@ class _HomepageState extends State<Homepage> {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color:
-                                  (document.get('type').toString() == "receiver"
-                                      ? Colors.grey.shade200
-                                      : Colors.blue[200]),
+                              color: getcolor(document.get('priority')),
                             ),
                             padding: EdgeInsets.all(16),
                             child: (document.get('type').toString() == "image")
@@ -214,6 +224,7 @@ class _HomepageState extends State<Homepage> {
                                   .set({
                                 'text': messageController.text,
                                 'type': "sender",
+                                'priority': 0,
                                 'time': DateTime.now().toString()
                               });
                               messageController.text = "";
