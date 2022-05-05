@@ -62,6 +62,7 @@ class _HomepageState extends State<Homepage> {
         .child('user_photo/${uid}_${DateTime.now().toString()}')
         .putFile(imageFile);
     final imageURL = await uploadTask.ref.getDownloadURL();
+    FirebaseFirestore.instance.collection('USERS').doc('$uid').set({});
     FirebaseFirestore.instance
         .collection('USERS')
         .doc('$uid')
@@ -109,6 +110,11 @@ class _HomepageState extends State<Homepage> {
                 const Text('Reports'),
                 ElevatedButton(
                   onPressed: () {
+                    FirebaseFirestore.instance
+                        .collection('USERS')
+                        .doc('$uid')
+                        .set({});
+
                     FirebaseFirestore.instance
                         .collection('USERS')
                         .doc('$uid')
@@ -216,6 +222,11 @@ class _HomepageState extends State<Homepage> {
                                 data: sx);
                             print(x.data);
                             if (x.data == false) {
+                              FirebaseFirestore.instance
+                                  .collection('USERS')
+                                  .doc('$uid')
+                                  .set({});
+
                               FirebaseFirestore.instance
                                   .collection('USERS')
                                   .doc('$uid')
