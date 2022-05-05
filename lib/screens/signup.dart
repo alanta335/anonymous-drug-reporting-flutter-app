@@ -19,47 +19,53 @@ class _SignupState extends State<Signup> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: Stack(
+      body: Column(
         children: [
           Center(
-              child: GestureDetector(
-            onTap: () async {
-              await GoogleSignInProvider().googleLogin();
-              FirebaseFirestore.instance
-                  .collection('USERS')
-                  .doc('${FirebaseAuth.instance.currentUser!.uid}')
-                  .collection('message')
-                  .doc()
-                  .set({
-                'text': "welcome",
-                'type': "receiver",
-                'time': DateTime.now().toString()
-              });
-
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (ctx) => const Homepage()));
-            },
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.amber,
-                borderRadius: BorderRadius.circular(50),
-              ),
-              width: width * 0.87,
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Row(
-                  children: [
-                    Text(
-                      'Sign up with Google',
-                      style: TextStyle(
-                          fontFamily: 'Poppins', color: Colors.grey.shade700),
-                    )
-                  ],
+            child: GestureDetector(
+              onTap: () async {
+                await GoogleSignInProvider().googleLogin();
+                FirebaseFirestore.instance
+                    .collection('USERS')
+                    .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                    .collection('message')
+                    .doc()
+                    .set({
+                  'text': "welcome",
+                  'type': "receiver",
+                  'time': DateTime.now().toString()
+                });
+                FirebaseFirestore.instance
+                    .collection('USERS')
+                    .doc('${FirebaseAuth.instance.currentUser!.uid}')
+                    .set({
+                  'user_type': 'customer',
+                });
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (ctx) => const Homepage()));
+              },
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                width: width * 0.87,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Sign up with Google as customer',
+                        style: TextStyle(
+                            fontFamily: 'Poppins', color: Colors.grey.shade700),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
-          )),
+          ),
         ],
       ),
     );
