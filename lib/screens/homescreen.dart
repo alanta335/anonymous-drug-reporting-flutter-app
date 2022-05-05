@@ -211,11 +211,14 @@ class _HomepageState extends State<Homepage> {
                             //print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
                             Response xs = await dio.post(
                                 'http://reportapitest34.azurewebsites.net/data',
-                                data: {'UID': "STY"});
+                                data: {
+                                  'UID':
+                                      "${FirebaseAuth.instance.currentUser!.uid}"
+                                });
 
                             //late basic_data x = basic_data.fromJson())
                             basic_data x = basic_data.fromJson(xs.data);
-                            print(x.UID);
+                            print("${x.UID}++++${x.message}");
                           },
                           child: Text('aPI')),
                     ),
