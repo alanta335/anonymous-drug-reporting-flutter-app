@@ -31,6 +31,8 @@ class _SignupState extends State<Signup> {
                 setState(() {
                   userType = "user";
                 });
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (ctx) => const Homepage()));
               },
               child: Container(
                 height: 50,
