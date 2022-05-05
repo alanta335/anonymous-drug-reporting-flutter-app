@@ -192,8 +192,11 @@ class _MapState extends State<Map> {
       ls.add({"lat": lat, "long": long});
       if (id == "MAX") {
         circles.add(Circle(
+            strokeColor: Colors.red,
+            fillColor: Color.fromARGB(150, 175, 217, 237),
+            strokeWidth: 0,
             circleId: CircleId("2"),
-            radius: radius * 100,
+            radius: radius * 115550,
             center: LatLng(lat, long)));
         markers.add(Marker(
           icon:
