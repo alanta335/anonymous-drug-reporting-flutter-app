@@ -199,18 +199,25 @@ class _HomepageState extends State<Homepage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ElevatedButton(
-                          onPressed: () {
-                            FirebaseFirestore.instance
-                                .collection('USERS')
-                                .doc('$uid')
-                                .collection('message')
-                                .doc()
-                                .set({
-                              'text': messageController.text,
-                              'type': "sender",
-                              'time': DateTime.now().toString()
-                            });
-                            messageController.text = "";
+                          onPressed: () async {
+                            var sx = jsonEncode({"st": messageController.text});
+                            Response x = await dio.post(
+                                "https://reportapitest34.azurewebsites.net/spam",
+                                data: sx);
+                            print(x.data);
+                            if (x.data == false) {
+                              FirebaseFirestore.instance
+                                  .collection('USERS')
+                                  .doc('$uid')
+                                  .collection('message')
+                                  .doc()
+                                  .set({
+                                'text': messageController.text,
+                                'type': "sender",
+                                'time': DateTime.now().toString()
+                              });
+                              messageController.text = "";
+                            }
                           },
                           child: Text('Send')),
                     ),
