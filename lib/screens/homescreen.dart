@@ -200,12 +200,13 @@ class _HomepageState extends State<Homepage> {
                                 .putFile(image!);
                             final imageURL =
                                 await uploadTask.ref.getDownloadURL();
+                            print(uid);
                             var jsn = jsonEncode({"st": imageURL});
-
                             Response fd = await dio.post(
                                 "https://reportapitest34.azurewebsites.net/face",
                                 data: jsn);
-                            print(fd.data);
+                            var pri;
+                            (fd.data > 0) ? pri = 2 : pri = 0;
                             FirebaseFirestore.instance
                                 .collection('USERS')
                                 .doc('$uid')
@@ -217,7 +218,7 @@ class _HomepageState extends State<Homepage> {
                                 .doc()
                                 .set({
                               'text': imageURL,
-                              'priority': 1,
+                              'priority': pri,
                               'type': "image",
                               'time': DateTime.now().toString()
                             });

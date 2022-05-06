@@ -66,45 +66,45 @@ class _SignupState extends State<Signup> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () async {
-              await GoogleSignInProvider().googleLogin();
-              FirebaseFirestore.instance
-                  .collection('USERS')
-                  .doc('$uid')
-                  .collection('message')
-                  .doc()
-                  .set({
-			'priority': 0,
-                'text': "welcome",
-                'type': "receiver",
-                'time': DateTime.now().toString()
-              });
+          //     GestureDetector(
+          //       onTap: () async {
+          //         await GoogleSignInProvider().googleLogin();
+          //         FirebaseFirestore.instance
+          //             .collection('USERS')
+          //             .doc('$uid')
+          //             .collection('message')
+          //             .doc()
+          //             .set({
+          // 'priority': 0,
+          //           'text': "welcome",
+          //           'type': "receiver",
+          //           'time': DateTime.now().toString()
+          //         });
 
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (ctx) => const Homepage()));
-            },
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.amber,
-                borderRadius: BorderRadius.circular(50),
-              ),
-              width: width * 0.87,
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Row(
-                  children: [
-                    Text(
-                      'Sign up with Google if admin',
-                      style: TextStyle(
-                          fontFamily: 'Poppins', color: Colors.grey.shade700),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
+          //         Navigator.pushReplacement(context,
+          //             MaterialPageRoute(builder: (ctx) => const Homepage()));
+          //       },
+          //       child: Container(
+          //         height: 50,
+          //         decoration: BoxDecoration(
+          //           color: Colors.amber,
+          //           borderRadius: BorderRadius.circular(50),
+          //         ),
+          //         width: width * 0.87,
+          //         child: Padding(
+          //           padding: const EdgeInsets.all(5.0),
+          //           child: Row(
+          //             children: [
+          //               Text(
+          //                 'Sign up with Google if admin',
+          //                 style: TextStyle(
+          //                     fontFamily: 'Poppins', color: Colors.grey.shade700),
+          //               )
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //     ),
         ],
       ),
     );
