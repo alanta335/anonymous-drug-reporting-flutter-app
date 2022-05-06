@@ -55,25 +55,7 @@ class _HomepageState extends State<Homepage> {
     setState(() {
       this.image = imageTemp;
     });
-    print(image.path);
     final imageFile = File(image.path);
-    final uploadTask = await FirebaseStorage.instance
-        .ref()
-        .child('user_photo/${uid}_${DateTime.now().toString()}')
-        .putFile(imageFile);
-    final imageURL = await uploadTask.ref.getDownloadURL();
-    FirebaseFirestore.instance.collection('USERS').doc('$uid').set({});
-    FirebaseFirestore.instance
-        .collection('USERS')
-        .doc('$uid')
-        .collection('message')
-        .doc()
-        .set({
-      'text': imageURL,
-      'priority': 1,
-      'type': "image",
-      'time': DateTime.now().toString()
-    });
   }
 
   final ImagePicker _picker = ImagePicker();
@@ -208,7 +190,41 @@ class _HomepageState extends State<Homepage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ElevatedButton(
-                        onPressed: () => getImage(),
+                        onPressed: () async {
+                          await getImage();
+                          if (image != null) {
+                            final uploadTask = await FirebaseStorage.instance
+                                .ref()
+                                .child(
+                                    'user_photo/${uid}_${DateTime.now().toString()}')
+                                .putFile(image!);
+                            final imageURL =
+                                await uploadTask.ref.getDownloadURL();
+                            var jsn = jsonEncode({"st": imageURL});
+
+                            Response fd = await dio.post(
+                                "https://reportapitest34.azurewebsites.net/face",
+                                data: jsn);
+                            print(fd.data);
+                            FirebaseFirestore.instance
+                                .collection('USERS')
+                                .doc('$uid')
+                                .set({});
+                            FirebaseFirestore.instance
+                                .collection('USERS')
+                                .doc('$uid')
+                                .collection('message')
+                                .doc()
+                                .set({
+                              'text': imageURL,
+                              'priority': 1,
+                              'type': "image",
+                              'time': DateTime.now().toString()
+                            });
+                          } else {
+                            print("image error!");
+                          }
+                        },
                         child: const Icon(Icons.camera_alt_rounded),
                       ),
                     ),
