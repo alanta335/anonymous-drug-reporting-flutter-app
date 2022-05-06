@@ -1,7 +1,6 @@
 import 'dart:convert';
-
+import 'expendable_fab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -101,70 +100,46 @@ class _MapState extends State<Map> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Text("Map"),
-            Expanded(
-              child: ElevatedButton(
-                  onPressed: () {
-                    reportLocationGet();
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Container(
+                height: double.infinity,
+                width: double.infinity,
+                child: GoogleMap(
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: _initialCameraPosition,
+                  onMapCreated: (controller) {
+                    _googleMapController = controller;
                   },
-                  child: Text("see report area")),
-            ),
-            Expanded(
-              child: ElevatedButton(
-                  onPressed: () async {
-                    var json = jsonEncode({"list": ls});
-                    //print(json);
-                    Response x = await dio.post(
-                        "https://reportapitest34.azurewebsites.net/data",
-                        data: json);
-                    //print(x.data);
-                    json_loc locc = json_loc.fromJson(x.data);
-                    print("Raduisss = ${locc.rad.toString()}");
-                    addMarkerOfReportedArea(
-                        "MAX", locc.lat!, locc.long!, locc.rad!);
+                  markers: markers.toSet(),
+                  onLongPress: _addMarker,
+                  circles: circles,
+                  onTap: (coordinates) {
+                    _googleMapController
+                        .animateCamera(CameraUpdate.newLatLng(coordinates));
                   },
-                  child: Text("see cluster")),
-            )
-          ],
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: GoogleMap(
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              initialCameraPosition: _initialCameraPosition,
-              onMapCreated: (controller) {
-                _googleMapController = controller;
-              },
-              markers: markers.toSet(),
-              onLongPress: _addMarker,
-              circles: circles,
-              onTap: (coordinates) {
-                _googleMapController
-                    .animateCamera(CameraUpdate.newLatLng(coordinates));
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-          ElevatedButton(
-            child: Text("Select"),
+        ),
+        floatingActionButton: ExpendableFab(distance: 100, children: [
+          ActionButton(
+              icon: Icon(Icons.center_focus_strong_rounded,
+                  color: Colors.yellowAccent),
+              onPressed: () {
+                _googleMapController.animateCamera(
+                    CameraUpdate.newCameraPosition(_initialCameraPosition));
+              }),
+          ActionButton(
+            icon: Icon(Icons.done, color: Colors.yellowAccent),
             onPressed: () {
               Navigator.pop(context);
             },
-          )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _googleMapController.animateCamera(
-          CameraUpdate.newCameraPosition(_initialCameraPosition),
-        ),
-        child: const Icon(Icons.center_focus_strong),
-      ),
-    );
+          ),
+        ]));
   }
 
   void _addMarker(LatLng pos) {
