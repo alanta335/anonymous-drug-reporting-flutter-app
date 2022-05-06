@@ -100,46 +100,47 @@ class _MapState extends State<Map> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-          child: Stack(
-            children: [
-              Container(
-                height: double.infinity,
-                width: double.infinity,
-                child: GoogleMap(
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  initialCameraPosition: _initialCameraPosition,
-                  onMapCreated: (controller) {
-                    _googleMapController = controller;
-                  },
-                  markers: markers.toSet(),
-                  onLongPress: _addMarker,
-                  circles: circles,
-                  onTap: (coordinates) {
-                    _googleMapController
-                        .animateCamera(CameraUpdate.newLatLng(coordinates));
-                  },
-                ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              child: GoogleMap(
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: false,
+                initialCameraPosition: _initialCameraPosition,
+                onMapCreated: (controller) {
+                  _googleMapController = controller;
+                },
+                markers: markers.toSet(),
+                onLongPress: _addMarker,
+                circles: circles,
+                onTap: (coordinates) {
+                  _googleMapController
+                      .animateCamera(CameraUpdate.newLatLng(coordinates));
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        floatingActionButton: ExpendableFab(distance: 100, children: [
-          ActionButton(
-              icon: Icon(Icons.center_focus_strong_rounded,
-                  color: Colors.yellowAccent),
-              onPressed: () {
-                _googleMapController.animateCamera(
-                    CameraUpdate.newCameraPosition(_initialCameraPosition));
-              }),
-          ActionButton(
-            icon: Icon(Icons.done, color: Colors.yellowAccent),
+      ),
+      floatingActionButton: ExpendableFab(distance: 100, children: [
+        ActionButton(
+            icon: Icon(Icons.center_focus_strong_rounded,
+                color: Colors.yellowAccent),
             onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ]));
+              _googleMapController.animateCamera(
+                  CameraUpdate.newCameraPosition(_initialCameraPosition));
+            }),
+        ActionButton(
+          icon: Icon(Icons.done, color: Colors.yellowAccent),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ]),
+    );
   }
 
   void _addMarker(LatLng pos) {
